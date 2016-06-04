@@ -5,9 +5,10 @@ Zetaohm_MAX7301 max7301();
 
 InputModule::InputModule(){};
 
-void InputModule::initialize(OutputController* outputControl, Sequencer (*sequenceArray)[4]){
+void InputModule::initialize(OutputController* outputControl, FlashMemory* saveFile, Sequencer (*sequenceArray)[4]){
   Serial.println("button setup start");
 
+  this->saveFile = saveFile;
   this->sequenceArray = sequenceArray;
   this->outputControl = outputControl;
 
@@ -92,7 +93,7 @@ void InputModule::buttonLoop(){
 void InputModule::patternSelectHandler(){
   for (int i=0; i < 16; i++){
     if (max7301.fell(i)){
-      saveFile.changePattern(i, patternChannelSelector,  true, true);
+      saveFile->changePattern(i, patternChannelSelector,  true, true);
 
       delay(10);
       changeState(STEP_DISPLAY);
@@ -112,7 +113,7 @@ void InputModule::channelMenuHandler(){
       changeState(STEP_DISPLAY);
 
   } else if (max7301.fell(8)){
-    saveFile.deleteSaveFile();
+    saveFile->deleteSaveFile();
     changeState(STEP_DISPLAY);
 
   } else if (max7301.fell(12)){

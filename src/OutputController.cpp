@@ -30,7 +30,6 @@ void OutputController::initialize(Sequencer (*sequenceArray)[4]){
   pinMode(DEBUG_PIN, OUTPUT);
   pinMode(4, OUTPUT);
 
-  saveFile.initialize(sequenceArray);
   Serial.println("Output Controller Initialization Complete");
 }
 

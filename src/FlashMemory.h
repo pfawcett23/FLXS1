@@ -5,6 +5,7 @@
 #include "global.h"
 #include "Sequencer.h"
 
+
 #ifndef _FlashMemory_h_
 #define _FlashMemory_h_
 
@@ -23,6 +24,7 @@ public:
   int readSequenceJSON(uint8_t channel, uint8_t pattern);
   void deleteAllFiles();
   void rm(File dir, String tempPath);
+  bool deserialize(uint8_t channel, char* json);
 private:
   Sequencer (*sequenceArray)[4];
   File saveData;
@@ -30,6 +32,5 @@ private:
 
 };
 
-extern FlashMemory saveFile;
 
 #endif

@@ -6,7 +6,7 @@
 #ifndef _midiModule_h_
 #define _midiModule_h_
   //MIDI_CREATE_DEFAULT_INSTANCE();
-
+/*
   void midiSetup();
   void midiStopHandler();
   void midiNoteOffHandler(byte channel, byte note, byte velocity);
@@ -14,5 +14,5 @@
   void midiStartContinueHandler();
   void midiClockPulseHandler();
   void midiClockSyncFunc();
-
+*/
 #endif

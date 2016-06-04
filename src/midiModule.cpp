@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include "midiModule.h"
-
+/*
 void midiSetup(){
 //  MasterClockMemFn midiClockPulseHandlerFp = &MasterClock::midiClockPulseHandler;
 ///  MasterClockMemFn midiStartContinueHandlerFp = &MasterClock::midiStartContinueHandler;
@@ -36,3 +36,4 @@ void midiClockSyncFunc(){
 //  MIDI.read();
   interrupts();
 }
+*/

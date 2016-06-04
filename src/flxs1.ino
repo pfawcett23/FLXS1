@@ -14,8 +14,6 @@
 //#include "midiModule.h"
 //#include "FlashMemory.h"
 //#include "LEDArray.h"
-
-
 #define kSerialSpeed 115200
 #define kClockInterval 1000
 #define kMosiPin 11
@@ -27,8 +25,8 @@ IntervalTimer MasterClockTimer;
 void setup() {
   Serial.begin(kSerialSpeed);
   //waiting for serial to begin
-  delay(1500);
-  Serial.println("Setup Start");
+  delay(5000);
+  Serial.println("-----------  Setup Start -----------");
 
   SPI.begin();
 	SPI.setMOSI(kMosiPin);
@@ -39,7 +37,7 @@ void setup() {
   //void (TimeController::*masterLoop)(void) = 0;
   //masterLoop = &TimeController::masterClockHandler;
 
-//	MasterClockTimer.begin(timeControl.*masterLoop,kClockInterval);
+//	MasterClockTimer.begin(timeControl.*masterLoop,kClockInter val);
   MasterClockTimer.begin(masterLoop,kClockInterval);
 	SPI.usingInterrupt(MasterClockTimer);
   Serial.println("Setup Complete");

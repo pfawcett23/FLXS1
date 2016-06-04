@@ -52,7 +52,7 @@ public:
   Zetaohm_MAX7301 max7301;
   OutputController* outputControl;
 
-  void initialize(OutputController* outputControl, Sequencer (*sequenceArray)[4]);
+  void initialize(OutputController* outputControl, FlashMemory* saveFile, Sequencer (*sequenceArray)[4]);
 
   void buttonLoop();
   void patternSelectHandler();
@@ -83,6 +83,7 @@ public:
 
 private:
   Sequencer (*sequenceArray)[4];
+  FlashMemory *saveFile;
 
 };
 

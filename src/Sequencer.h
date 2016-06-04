@@ -99,8 +99,6 @@ class Sequencer
 
 };
 
-//extern Sequencer sequence[4];
-
 #endif
 
 /*

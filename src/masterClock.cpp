@@ -51,7 +51,7 @@ if (inputTimer > 10000){
 //if (pixelTimer > 2000){
 //  pixelTimer = 0;
 //}
-  midiClockSyncFunc();
+//  midiClockSyncFunc();
 }
 
 

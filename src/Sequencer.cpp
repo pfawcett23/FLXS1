@@ -29,6 +29,7 @@ void Sequencer::initialize(uint8_t ch, uint8_t stepCount, uint8_t beatCount, uin
 
 
 void Sequencer::initNewSequence(uint8_t index, uint8_t ch){
+	Serial.println("Sequencer::initializing new sequence!");
   this->stepCount = stepCount;
   this->beatCount = 4;
   this->quantizeKey = 1;
