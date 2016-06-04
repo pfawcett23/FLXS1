@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #ifndef NoteDatum_h
 #define NoteDatum_h
 

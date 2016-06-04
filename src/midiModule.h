@@ -5,6 +5,7 @@
 
 #ifndef _midiModule_h_
 #define _midiModule_h_
+  //MIDI_CREATE_DEFAULT_INSTANCE();
 
   void midiSetup();
   void midiStopHandler();

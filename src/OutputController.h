@@ -2,7 +2,6 @@
 #define _OUTPUT_CONTROLLER_H_
 
 #include <Arduino.h>
-#include <MIDI.h>
 #include "Adafruit_MCP23017.h"
 #include "Zetaohm_AD5676/Zetaohm_AD5676.h"
 #include "Zetaohm_SAM2695/Zetaohm_SAM2695.h"
@@ -16,7 +15,7 @@
 
 class OutputController {
 public:
-  void initialize();
+  void initialize(Sequencer (*sequenceArray)[4]);
   void noteOn(uint8_t channel, uint8_t note, uint8_t velocity);
   void noteOff(uint8_t channel, uint8_t note);
   void allNotesOff(uint8_t channel);

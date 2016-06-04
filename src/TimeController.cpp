@@ -3,15 +3,17 @@
 
 TimeController::TimeController(){};
 
+
 void TimeController::initialize() {
 	Serial.println("Initializing TimeController");
 
-	outputControl.initialize();
+	outputControl.initialize(&sequence);
+  ledArray.initialize(&sequence);
+  display.initialize(&sequence);
+	buttonIo.initialize(&outputControl, &sequence);
+	clockMaster.initialize(&outputControl, &sequence);
 
-  ledArray.initialize();
-  display.initialize();
-	buttonIo.buttonSetup(&outputControl);
-	clockMaster.initialize(&outputControl);
+	//midiSetup(&clockMaster);
 
   sequence[0].initialize(0, 16, 4, (tempoX100/100));
   sequence[1].initialize(1, 16, 4, (tempoX100/100));

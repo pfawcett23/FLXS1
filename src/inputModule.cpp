@@ -5,12 +5,11 @@ Zetaohm_MAX7301 max7301();
 
 InputModule::InputModule(){};
 
-void InputModule::buttonSetup(OutputController * outputControl) {
+void InputModule::initialize(OutputController* outputControl, Sequencer (*sequenceArray)[4]){
   Serial.println("button setup start");
 
+  this->sequenceArray = sequenceArray;
   this->outputControl = outputControl;
-
-  Serial.println("button setup 2");  delay(1);
 
   max7301.begin(5);                      delay(1);
   max7301.gpioPinMode(INPUT_PULLUP);     delay(1);
@@ -42,9 +41,8 @@ void InputModule::buttonSetup(OutputController * outputControl) {
   max7301.init(25, 24);  // SW_MENU
   max7301.init(26, 23);  // SW_ALT
   max7301.init(27, 22);  // SW_SPARE
-  Serial.println("button setup 1");
 
-  Serial.println("button setup end");
+  Serial.println("button setup complete");
 
 }
 
@@ -104,12 +102,12 @@ void InputModule::patternSelectHandler(){
 
 void InputModule::channelMenuHandler(){
   if (max7301.fell(0)){
-    sequence[selectedChannel].initNewSequence(sequence[selectedChannel].patternIndex, selectedChannel);
+    sequenceArray[selectedChannel]->initNewSequence(sequenceArray[selectedChannel]->patternIndex, selectedChannel);
       changeState(STEP_DISPLAY);
 
   } else if (max7301.fell(4)){
     for (int i=0; i < 4; i++){
-      sequence[i].initNewSequence(sequence[i].patternIndex, i);
+      sequenceArray[i]->initNewSequence(sequenceArray[i]->patternIndex, i);
     }
       changeState(STEP_DISPLAY);
 
@@ -118,13 +116,13 @@ void InputModule::channelMenuHandler(){
     changeState(STEP_DISPLAY);
 
   } else if (max7301.fell(12)){
-    if (sequence[selectedChannel].instType == 0){
-      sequence[selectedChannel].setInstType(1);
-      //sequence[selectedChannel].stepCount = 16;
-      //sequence[selectedChannel].beatCount = 16;
+    if (sequenceArray[selectedChannel]->instType == 0){
+      sequenceArray[selectedChannel]->setInstType(1);
+      //sequenceArray[selectedChannel]->stepCount = 16;
+      //sequenceArray[selectedChannel]->beatCount = 16;
       life.genGrid(micros());
     } else {
-      sequence[selectedChannel].setInstType(0);
+      sequenceArray[selectedChannel]->setInstType(0);
     }
     changeState(STEP_DISPLAY);
   } else if (max7301.fell(3)){
@@ -211,7 +209,7 @@ void InputModule::altButtonHandler(){
           }
           playing = false;
           for(int s = 0; s < sequenceCount; s++){
-            sequence[s].activeStep = 0;
+            sequenceArray[s]->activeStep = 0;
            // sam2695.allNotesOff(s);
           }
           break;
@@ -234,20 +232,20 @@ void InputModule::altButtonHandler(){
       if (max7301.fell(i)){
         if(selectedStep == getNote(i) && stepMode == 0){
           stepMode = 1; // change the step length
-          knobBuffer = sequence[selectedChannel].stepData[getNote(i)].gateLength - knobRead;
-         // stepModeBuffer = sequence[selectedChannel].stepData[i].gateLength;
+          knobBuffer = sequenceArray[selectedChannel]->stepData[getNote(i)].gateLength - knobRead;
+         // stepModeBuffer = sequenceArray[selectedChannel]->stepData[i].gateLength;
     //    } else if (selectedStep == i && stepMode != 0){
     //      stepMode = positive_modulo(stepMode + 1, 3); // change the step length
     //   //   knob1.write(0);
-    //   //   stepModeBuffer = sequence[selectedChannel].stepData[i].gateType;
-    //      knobBuffer = sequence[selectedChannel].stepData[i].gateType - knobRead;
+    //   //   stepModeBuffer = sequenceArray[selectedChannel]->stepData[i].gateType;
+    //      knobBuffer = sequenceArray[selectedChannel]->stepData[i].gateType - knobRead;
         } else if (selectedStep == getNote(i) && stepMode == 1){
           stepMode = 2;
-          knobBuffer = sequence[selectedChannel].stepData[getNote(i)].velocity - knobRead;
+          knobBuffer = sequenceArray[selectedChannel]->stepData[getNote(i)].velocity - knobRead;
         }else {
           stepMode = 0;
           selectedStep = getNote(i);
-          knobBuffer = sequence[selectedChannel].getStepPitch(selectedStep) - knobRead;
+          knobBuffer = sequenceArray[selectedChannel]->getStepPitch(selectedStep) - knobRead;
         }
       }
     }
@@ -259,41 +257,41 @@ void InputModule::altButtonHandler(){
       switch (stepMode) {
         case 0:
       // just change the note
-        if (knobRead + sequence[selectedChannel].getStepPitch(selectedStep) < 0){
+        if (knobRead + sequenceArray[selectedChannel]->getStepPitch(selectedStep) < 0){
           // you can turn off a note by turning the value to 0
           // turn off a note by setting gate type and pitch to 0
-          sequence[selectedChannel].stepData[selectedStep].gateType = 0;
-          sequence[selectedChannel].setStepPitch(selectedStep, 0);
+          sequenceArray[selectedChannel]->stepData[selectedStep].gateType = 0;
+          sequenceArray[selectedChannel]->setStepPitch(selectedStep, 0);
           knob.write(4);
         } else {
-          if(sequence[selectedChannel].stepData[selectedStep].gateType == 0){
+          if(sequenceArray[selectedChannel]->stepData[selectedStep].gateType == 0){
             // if a note is not active, turn it on and give it a length.
-            sequence[selectedChannel].stepData[selectedStep].gateType = 1;
-            sequence[selectedChannel].stepData[selectedStep].gateLength = 1;
+            sequenceArray[selectedChannel]->stepData[selectedStep].gateType = 1;
+            sequenceArray[selectedChannel]->stepData[selectedStep].gateLength = 1;
           }
           // and finally set the new step value!
-          sequence[selectedChannel].setStepPitch(selectedStep, positive_modulo(sequence[selectedChannel].getStepPitch(selectedStep) + knobChange, 127));
+          sequenceArray[selectedChannel]->setStepPitch(selectedStep, positive_modulo(sequenceArray[selectedChannel]->getStepPitch(selectedStep) + knobChange, 127));
 
         }
         break;
 
         case 1:
     // change the gate type
-        if ((sequence[selectedChannel].stepData[selectedStep].gateLength == 0) && (knobChange < 0)  ) {
-          sequence[selectedChannel].stepData[selectedStep].gateType = 0;
+        if ((sequenceArray[selectedChannel]->stepData[selectedStep].gateLength == 0) && (knobChange < 0)  ) {
+          sequenceArray[selectedChannel]->stepData[selectedStep].gateType = 0;
         } else if(knobChange > 0) {
-          sequence[selectedChannel].stepData[selectedStep].gateType = 1;
+          sequenceArray[selectedChannel]->stepData[selectedStep].gateType = 1;
         }
 
-        if (sequence[selectedChannel].stepData[selectedStep].gateType > 0){
-          sequence[selectedChannel].stepData[selectedStep].gateLength =  positive_modulo(sequence[selectedChannel].stepData[selectedStep].gateLength + knobChange, 127);
+        if (sequenceArray[selectedChannel]->stepData[selectedStep].gateType > 0){
+          sequenceArray[selectedChannel]->stepData[selectedStep].gateLength =  positive_modulo(sequenceArray[selectedChannel]->stepData[selectedStep].gateLength + knobChange, 127);
         }
 
         break;
 
         case 2:
       // change length of gate
-        sequence[selectedChannel].stepData[selectedStep].velocity = positive_modulo(sequence[selectedChannel].stepData[selectedStep].velocity + knobChange, 128 );
+        sequenceArray[selectedChannel]->stepData[selectedStep].velocity = positive_modulo(sequenceArray[selectedChannel]->stepData[selectedStep].velocity + knobChange, 128 );
         break;
 
         case 3:
@@ -313,27 +311,27 @@ timesr.c:(.text._times_r+0x2): undefined reference to `_times'
         break;
 
         case 4:
-        instrumentSelectValue = positive_modulo(sequence[selectedChannel].instrument + knobChange,128);
-        if (sequence[selectedChannel].instrument != instrumentSelectValue){
-          sequence[selectedChannel].instrument = instrumentSelectValue;
-          outputControl->samCommand(PROGRAM_CHANGE, selectedChannel, sequence[selectedChannel].instrument);
+        instrumentSelectValue = positive_modulo(sequenceArray[selectedChannel]->instrument + knobChange,128);
+        if (sequenceArray[selectedChannel]->instrument != instrumentSelectValue){
+          sequenceArray[selectedChannel]->instrument = instrumentSelectValue;
+          outputControl->samCommand(PROGRAM_CHANGE, selectedChannel, sequenceArray[selectedChannel]->instrument);
         }
         break;
 
         case 5:
-        instrumentSelectValue = positive_modulo(sequence[selectedChannel].volume + knobChange, 128);
-        if (sequence[selectedChannel].volume != instrumentSelectValue ){
-          sequence[selectedChannel].volume = instrumentSelectValue;
-          outputControl->samCommand(SET_CHANNEL_VOLUME, selectedChannel, sequence[selectedChannel].volume);
+        instrumentSelectValue = positive_modulo(sequenceArray[selectedChannel]->volume + knobChange, 128);
+        if (sequenceArray[selectedChannel]->volume != instrumentSelectValue ){
+          sequenceArray[selectedChannel]->volume = instrumentSelectValue;
+          outputControl->samCommand(SET_CHANNEL_VOLUME, selectedChannel, sequenceArray[selectedChannel]->volume);
         }
         break;
 
         case 6:
-        sequence[selectedChannel].stepCount = positive_modulo(sequence[selectedChannel].stepCount + knobChange, 129);
+        sequenceArray[selectedChannel]->stepCount = positive_modulo(sequenceArray[selectedChannel]->stepCount + knobChange, 129);
         break;
 
         case 7:
-        sequence[selectedChannel].beatCount = positive_modulo(sequence[selectedChannel].beatCount + knobChange, 129);
+        sequenceArray[selectedChannel]->beatCount = positive_modulo(sequenceArray[selectedChannel]->beatCount + knobChange, 129);
         break;
 
       }
@@ -371,24 +369,24 @@ timesr.c:(.text._times_r+0x2): undefined reference to `_times'
     switch(menuSelector){
       case 0:
      //changing the instrument every loop causes weird problems with playback during instrument selection
-      instrumentSelectValue = positive_modulo(sequence[selectedChannel].instrument + knobChange,128);
-      if (sequence[selectedChannel].instrument != instrumentSelectValue){
-        sequence[selectedChannel].instrument = instrumentSelectValue;
-        outputControl->samCommand(PROGRAM_CHANGE, selectedChannel, sequence[selectedChannel].instrument);
+      instrumentSelectValue = positive_modulo(sequenceArray[selectedChannel]->instrument + knobChange,128);
+      if (sequenceArray[selectedChannel]->instrument != instrumentSelectValue){
+        sequenceArray[selectedChannel]->instrument = instrumentSelectValue;
+        outputControl->samCommand(PROGRAM_CHANGE, selectedChannel, sequenceArray[selectedChannel]->instrument);
       }
       break;
       case 4:
-      instrumentSelectValue = positive_modulo(sequence[selectedChannel].volume + knobChange, 128);
-      if (sequence[selectedChannel].volume != instrumentSelectValue ){
-        sequence[selectedChannel].volume = instrumentSelectValue;
-        outputControl->samCommand(SET_CHANNEL_VOLUME, selectedChannel, sequence[selectedChannel].volume);
+      instrumentSelectValue = positive_modulo(sequenceArray[selectedChannel]->volume + knobChange, 128);
+      if (sequenceArray[selectedChannel]->volume != instrumentSelectValue ){
+        sequenceArray[selectedChannel]->volume = instrumentSelectValue;
+        outputControl->samCommand(SET_CHANNEL_VOLUME, selectedChannel, sequenceArray[selectedChannel]->volume);
       }
       break;
       case 8:
-      instrumentSelectValue = positive_modulo(sequence[selectedChannel].bank + knobChange, 128) ;
-      if (sequence[selectedChannel].bank != instrumentSelectValue ){
-        sequence[selectedChannel].bank = instrumentSelectValue;
-        outputControl->samCommand(SET_CHANNEL_VOLUME, selectedChannel, sequence[selectedChannel].bank);
+      instrumentSelectValue = positive_modulo(sequenceArray[selectedChannel]->bank + knobChange, 128) ;
+      if (sequenceArray[selectedChannel]->bank != instrumentSelectValue ){
+        sequenceArray[selectedChannel]->bank = instrumentSelectValue;
+        outputControl->samCommand(SET_CHANNEL_VOLUME, selectedChannel, sequenceArray[selectedChannel]->bank);
       }
       break;
     }
@@ -403,10 +401,10 @@ timesr.c:(.text._times_r+0x2): undefined reference to `_times'
     }
     switch(menuSelector){
       case 0:
-      sequence[selectedChannel].stepCount = positive_modulo(sequence[selectedChannel].stepCount + knobChange, 129);
+      sequenceArray[selectedChannel]->stepCount = positive_modulo(sequenceArray[selectedChannel]->stepCount + knobChange, 129);
       break;
       case 4:
-      sequence[selectedChannel].beatCount = positive_modulo(sequence[selectedChannel].beatCount + knobChange, 129);
+      sequenceArray[selectedChannel]->beatCount = positive_modulo(sequenceArray[selectedChannel]->beatCount + knobChange, 129);
       break;
     }
   }

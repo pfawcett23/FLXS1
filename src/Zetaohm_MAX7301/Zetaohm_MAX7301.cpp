@@ -8,7 +8,7 @@ void Zetaohm_MAX7301::begin(const uint8_t csPin, uint32_t spispeed, bool protoco
   _spiTransactionsSpeed = 36000000;
   _cs = csPin;
   //	postSetup(csPin);
-	MAX7301_SPI = SPISettings(30000000, MSBFIRST, SPI_MODE0);//mode3
+	MAX7301_SPI = SPISettings(16000000, MSBFIRST, SPI_MODE0);//mode3
 
 	SPI.begin();
 	SPI.setBitOrder(MSBFIRST);

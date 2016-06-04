@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include "OutputController.h"
 
-void OutputController::initialize(){
+void OutputController::initialize(Sequencer (*sequenceArray)[4]){
   Serial.println("Initializing SAM2695");
 
   // PUT STUFF LIKE THIS INSIDE CONSTRUCTORS
@@ -26,23 +26,18 @@ void OutputController::initialize(){
   ad5676.internalReferenceEnable(true);
   ad5676.internalReferenceEnable(true);
 
-  Serial.println("Initializing MIDI");
-  midiSetup();
-
   Serial.println("Setting up debug pin");
   pinMode(DEBUG_PIN, OUTPUT);
   pinMode(4, OUTPUT);
 
-  Serial.println("Initializing Flash Memory");
-  // PUT STUFF LIKE THIS INSIDE CONSTRUCTORS
-  saveFile.initialize();
+  saveFile.initialize(sequenceArray);
   Serial.println("Output Controller Initialization Complete");
 }
 
 void OutputController::noteOn(uint8_t channel, uint8_t note, uint8_t velocity){
   // proto 6 calibration numbers: 0v: 22180   5v: 43340
   ad5676.setVoltage(dacCvMap[channel],  map(note, 0,127,13716, 58504 ) );
-  MIDI.sendNoteOn(note, velocity, channel);
+  //MIDI.sendNoteOn(note, velocity, channel);
   sam2695.noteOn(channel, note, velocity);
   ad5676.setVoltage(dacCcMap[channel],  map(note, 0,127,0, 43340 ) );
   mcp.digitalWrite(gateMap[channel], HIGH);
@@ -50,7 +45,7 @@ void OutputController::noteOn(uint8_t channel, uint8_t note, uint8_t velocity){
 
 void OutputController::noteOff(uint8_t channel, uint8_t note){
   mcp.digitalWrite(gateMap[channel], LOW);
-  MIDI.sendNoteOff(note, 64, channel);
+  //MIDI.sendNoteOff(note, 64, channel);
   sam2695.noteOff(channel, note);
 }
 

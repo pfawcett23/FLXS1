@@ -2,7 +2,6 @@
 #include "Sequencer.h"
 Sequencer sequence[4];
 
-
 Sequencer::Sequencer() {
 
 };

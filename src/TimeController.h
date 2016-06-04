@@ -28,6 +28,9 @@ class TimeController {
     InputModule buttonIo;
     DisplayModule display;
     LEDArray ledArray;
+    Sequencer sequence[4];
 };
+// https://isocpp.org/wiki/faq/pointers-to-members#fnptr-vs-memfnptr-types
+//typedef void (TimeController::*TimeControllerMemFn)();
 
 #endif

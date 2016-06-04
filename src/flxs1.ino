@@ -35,10 +35,14 @@ void setup() {
 	SPI.setSCK(kSpiClockPin);
 
   timeControl.initialize();
-	MasterClockTimer.begin(masterLoop,kClockInterval);
+
+  //void (TimeController::*masterLoop)(void) = 0;
+  //masterLoop = &TimeController::masterClockHandler;
+
+//	MasterClockTimer.begin(timeControl.*masterLoop,kClockInterval);
+  MasterClockTimer.begin(masterLoop,kClockInterval);
 	SPI.usingInterrupt(MasterClockTimer);
   Serial.println("Setup Complete");
-
 }
 
 void loop() {
