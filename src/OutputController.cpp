@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include "OutputController.h"
+#include "config.h"
 
 void OutputController::initialize(){
   Serial.println("Initializing SAM2695");
@@ -12,19 +13,19 @@ void OutputController::initialize(){
   sam2695.programChange(0, 3, 29);
   // PUT STUFF LIKE THIS INSIDE CONSTRUCTORS
   Serial.println("initializing gate outputs");
-  mcp.begin(1);      // use default address 0
-  mcp.pinMode(9, INPUT);
-  mcp.pinMode(4, OUTPUT);
-  mcp.pinMode(5, OUTPUT);
-  mcp.pinMode(6, OUTPUT);
-  mcp.pinMode(7, OUTPUT);
-  Serial.println("Initializing DAC");
+  //mcp.begin(1);      // use default address 0
+  //mcp.pinMode(9, INPUT);
+  //mcp.pinMode(4, OUTPUT);
+  //mcp.pinMode(5, OUTPUT);
+  //mcp.pinMode(6, OUTPUT);
+  //mcp.pinMode(7, OUTPUT);
+  Serial.println("Initializing DAC -- CSPIN: " +  String(AD5676_CSPIN));
   // PUT STUFF LIKE THIS INSIDE CONSTRUCTORS
-  ad5676.begin(3);
+  ad5676.begin(AD5676_CSPIN);
   ad5676.softwareReset();
   delay(1);
-  ad5676.internalReferenceEnable(true);
-  ad5676.internalReferenceEnable(true);
+  ad5676.internalReferenceEnable(false);
+  ad5676.internalReferenceEnable(false);
 
   Serial.println("Initializing MIDI");
   midiSetup();
@@ -33,20 +34,31 @@ void OutputController::initialize(){
   pinMode(DEBUG_PIN, OUTPUT);
   pinMode(4, OUTPUT);
 
+  Serial.println("initializing rheostats");
+  mcp4352a.initialize(MCP4352A_CSPIN);
+  mcp4352b.initialize(MCP4352B_CSPIN);
+
+  for (int i =0; i<4; i++){
+    mcp4352a.setResistance(i, 0);
+    mcp4352b.setResistance(i, 0);
+  }
+
   Serial.println("Output Controller Initialization Complete");
 }
 
 void OutputController::noteOn(uint8_t channel, uint8_t note, uint8_t velocity){
   // proto 6 calibration numbers: 0v: 22180   5v: 43340
-  ad5676.setVoltage(dacCvMap[channel],  map(note, 0,127,13716, 58504 ) );
+  ad5676.setVoltage(dacCvMap[channel],  map(note, 0,127,0, 65535 ) );
+//  ad5676.setVoltage(dacCvMap[channel],  map(note, 0,127,13716, 58504 ) );
   MIDI.sendNoteOn(note, velocity, channel);
   sam2695.noteOn(channel, note, velocity);
-  ad5676.setVoltage(dacCcMap[channel],  map(note, 0,127,0, 43340 ) );
-  mcp.digitalWrite(gateMap[channel], HIGH);
+  ad5676.setVoltage(dacCcMap[channel],  map(note, 0,127,0, 65535 ) );
+  //ad5676.setVoltage(dacCcMap[channel],  map(note, 0,127,0, 43340 ) );
+//  mcp.digitalWrite(gateMap[channel], HIGH);
 }
 
 void OutputController::noteOff(uint8_t channel, uint8_t note){
-  mcp.digitalWrite(gateMap[channel], LOW);
+//  mcp.digitalWrite(gateMap[channel], LOW);
   MIDI.sendNoteOff(note, 64, channel);
   sam2695.noteOff(channel, note);
 }

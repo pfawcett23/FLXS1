@@ -6,6 +6,7 @@
 #include "Adafruit_MCP23017.h"
 #include "Zetaohm_AD5676/Zetaohm_AD5676.h"
 #include "Zetaohm_SAM2695/Zetaohm_SAM2695.h"
+#include "Zetaohm_MCP4352/Zetaohm_MCP4352.h"
 #include "FlashMemory.h"
 #include "midiModule.h"
 #include "global.h"
@@ -25,6 +26,8 @@ public:
 private:
   Zetaohm_SAM2695 sam2695;
   Zetaohm_AD5676 ad5676;
+  Zetaohm_MCP4352 mcp4352a;
+  Zetaohm_MCP4352 mcp4352b;
   Adafruit_MCP23017 mcp;
 
   uint8_t gateMap[4]  = {4, 6, 5, 7};

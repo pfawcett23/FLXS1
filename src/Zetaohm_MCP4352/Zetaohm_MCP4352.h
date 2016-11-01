@@ -1,43 +1,34 @@
-#ifndef _ZETAOHM_MAX7301_H_
-#define _ZETAOHM_MAX7301_H_
-
-#include <inttypes.h>
+#include <Arduino.h>
 #include <SPI.h>//this chip needs SPI
 
-#define DEBOUNCE_THRESHOLD 	20000
+#ifndef _ZETAOHM_MCP4352_H_
+#define _ZETAOHM_MCP4352_H_
 
 #if defined(SPI_HAS_TRANSACTION)
-	static SPISettings MAX7301_SPI;
+	static SPISettings MCP4352_SPI;
 #endif
 
-class Zetaohm_MAX7301 {
+
+class Zetaohm_MCP4352 {
 
 public:
-	Zetaohm_MAX7301();
-	virtual void 	begin(const uint8_t csPin, uint32_t spispeed = SPI_CLOCK_DIV4, bool protocolInitOverride=false); //protocolInitOverride=true	will not init the SPI
-	void 			gpioPinMode(uint16_t mode, bool chipNum);					//OUTPUT=all out,INPUT=all in,0xxxx=you choose
-	uint8_t 	readAddress(byte addr,  bool chipNum);
-	void			setSPIspeed(uint32_t spispeed);//for SPI trans0actions
-	void			writeByte(byte addr, byte data,  bool chipNum);
-	void 			maxWrite(bool chipNum, uint8_t pin, bool state);
+	Zetaohm_MCP4352();
+  void initialize(uint8_t csPin);
+  void setResistance(uint8_t port, uint8_t value);
+  uint8_t readResistance(uint8_t port);
 
-	void			init(uint8_t index, uint8_t pin);		// initialize a new button
-	void			update();								// update the input buffer
-	bool			fell(uint8_t index);					// was the button pressed since the last check?
-	bool			rose(uint8_t index);					// was the button pressed since the last check?
-	bool			pressed(uint8_t index);
-	uint32_t		inputBuffer;
-	uint32_t		fellBuffer;
-	uint32_t		roseBuffer;
-	uint8_t			indexMap[32];
+  uint16_t 	readAddress(byte addr);
+  void			writeByte(byte addr, byte data);
 
-	elapsedMicros 	debounceTimer;
+private:
+    uint8_t 		_cs;
+
 protected:
 	#if defined(__MK20DX128__) || defined(__MK20DX256__)
 		void startTransaction(void)
 		__attribute__((always_inline)) {
 			#if defined(SPI_HAS_TRANSACTION)
-				SPI.beginTransaction(MAX7301_SPI);
+				SPI.beginTransaction(MCP4352_SPI);
 			#endif
 		}
 
@@ -78,13 +69,8 @@ protected:
 				SPI0_MCR = mcr;
 				while (KINETISK_SPI0.SR & 0xF0) { tmp = KINETISK_SPI0.POPR; }
 			}
+      #endif
 
-	#endif
-
-private:
-	uint32_t		_spiTransactionsSpeed;//for SPI transactions
-    uint8_t 		_cs;
-	uint8_t 		_adrs;
 };
 
 #endif

@@ -1,17 +1,17 @@
 #include <Arduino.h>
 #include "LEDArray.h"
-
+#include "config.h"
 LEDArray::LEDArray(){};
 
 void LEDArray::initialize(Sequencer *sequenceArray){
   Serial.println("Initializing LED Array");
   this->sequenceArray = sequenceArray;
 
-  pinMode(0, OUTPUT);
+  pinMode(LED_DATAPIN, OUTPUT);
 
-  LEDS.addLeds<WS2812Controller800Khz,DATA_PIN,GRB>(leds,NUM_LEDS);
+  LEDS.addLeds<WS2812Controller800Khz,LED_DATAPIN,GRB>(leds,NUM_LEDS);
   //LEDS.addLeds<NEOPIXEL,DATA_PIN>(leds,NUM_LEDS);
-	LEDS.setBrightness(84);
+	LEDS.setBrightness(127);
 
   static uint8_t hue = 0;
   for(int m=0; m<10; m++ ) {

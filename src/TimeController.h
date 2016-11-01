@@ -29,7 +29,7 @@ class TimeController {
     DisplayModule display;
     LEDArray ledArray;
     FlashMemory saveFile;
-
+    elapsedMillis debugTimer;
 };
 extern Sequencer sequence[4];
 

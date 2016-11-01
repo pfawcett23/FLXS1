@@ -21,42 +21,73 @@ void InputModule::initialize(OutputController* outputControl, FlashMemory* saveF
   this->sequenceArray = sequenceArray;
   this->outputControl = outputControl;
 
-  max7301.begin(5);                      delay(1);
-  max7301.gpioPinMode(INPUT_PULLUP);     delay(1);
-  max7301.init(0, 14);   // SW_00
-  max7301.init(1, 7);    // SW_01
-  max7301.init(2, 5);    // SW_02
-  max7301.init(3, 26);   // SW_03
-  max7301.init(4, 15);   // SW_04
-  max7301.init(5, 11);   // SW_05
-  max7301.init(6, 9);    // SW_06
-  max7301.init(7, 1);    // SW_07
-  max7301.init(8, 16);   // SW_08
-  max7301.init(9, 12);   // SW_09
-  max7301.init(10, 6);   // SW_10
-  max7301.init(11, 27);  // SW_11
-  max7301.init(12, 17);  // SW_12
-  max7301.init(13, 13);  // SW_13
-  max7301.init(14, 10);  // SW_14
-  max7301.init(15, 0);   // SW_15
-  max7301.init(16, 8);   // SW_PLAY
-  max7301.init(17, 4);   // SW_PAUSE
-  max7301.init(18, 2);   // SW_STOP
-  max7301.init(19, 21);  // SW_M0
-  max7301.init(20, 20);  // SW_M1
-  max7301.init(21, 19);  // SW_M2
-  max7301.init(22, 18);  // SW_M3
-  max7301.init(23, 3);   // SW_PGDN
-  max7301.init(24, 25);  // SW_PGUP
-  max7301.init(25, 24);  // SW_MENU
-  max7301.init(26, 23);  // SW_ALT
-  max7301.init(27, 22);  // SW_SPARE
-
+  max7301.begin(MAX7301_CSPIN);             delay(1);
+  max7301.gpioPinMode(INPUT_PULLUP, 0);     delay(1);
+  max7301.gpioPinMode(OUTPUT, 1);     delay(1);
+  max7301.init(0, 0);
+  max7301.init(1, 1);
+  max7301.init(2, 2);
+  max7301.init(3, 3);
+  max7301.init(4, 4);
+  max7301.init(5, 5);
+  max7301.init(6, 6);
+  max7301.init(7, 7);
+  max7301.init(8, 8);
+  max7301.init(9, 9);
+  max7301.init(10,10);
+  max7301.init(11,11);
+  max7301.init(12,12);
+  max7301.init(13,13);
+  max7301.init(14,14);
+  max7301.init(15,15);
+  max7301.init(16,16);
+  max7301.init(17,17);
+  max7301.init(18,18);
+  max7301.init(19,19);
+  max7301.init(20,20);
+  max7301.init(21,21);
+  max7301.init(22,22);
+  max7301.init(23,23);
+  max7301.init(24,24);
+  max7301.init(25,25);
+  max7301.init(26,26);
+  max7301.init(27,27);
+  //max7301.init(0, 14);   // SW_00
+  //max7301.init(1, 7);    // SW_01
+  //max7301.init(2, 5);    // SW_02
+  //max7301.init(3, 26);   // SW_03
+  //max7301.init(4, 15);   // SW_04
+  //max7301.init(5, 11);   // SW_05
+  //max7301.init(6, 9);    // SW_06
+  //max7301.init(7, 1);    // SW_07
+  //max7301.init(8, 16);   // SW_08
+  //max7301.init(9, 12);   // SW_09
+  //max7301.init(10, 6);   // SW_10
+  //max7301.init(11, 27);  // SW_11
+  //max7301.init(12, 17);  // SW_12
+  //max7301.init(13, 13);  // SW_13
+  //max7301.init(14, 10);  // SW_14
+  //max7301.init(15, 0);   // SW_15
+  //max7301.init(16, 8);   // SW_PLAY
+  //max7301.init(17, 4);   // SW_PAUSE
+  //max7301.init(18, 2);   // SW_STOP
+  //max7301.init(19, 21);  // SW_M0
+  //max7301.init(20, 20);  // SW_M1
+  //max7301.init(21, 19);  // SW_M2
+  //max7301.init(22, 18);  // SW_M3
+  //max7301.init(23, 3);   // SW_PGDN
+  //max7301.init(24, 25);  // SW_PGUP
+  //max7301.init(25, 24);  // SW_MENU
+  //max7301.init(26, 23);  // SW_ALT
+  //max7301.init(27, 22);  // SW_SPARE
+//
   Serial.println("button setup complete");
-
+  for (int i=0; i<28; i++){
+    max7301.maxWrite(1, i, 1);
+  }
 }
 
-void InputModule::loop(uint16_t frequency){
+void InputModule::loop(uint32_t frequency){
   if (inputTimer > frequency){
     inputTimer = 0;
     knobPrevious = knobRead;
@@ -64,7 +95,11 @@ void InputModule::loop(uint16_t frequency){
     knobChange = knobRead - knobPrevious;
 
     max7301.update();
-
+    for (int i=0; i<28; i++)
+      if (max7301.fell(i)){
+        Serial.println("button pressed: " + String(i));
+      }
+      /*
     //we always want the alt (non matrix) buttons to behave the same way
     altButtonHandler();
 
@@ -98,6 +133,7 @@ void InputModule::loop(uint16_t frequency){
       debugScreenInputHandler();
       break;
     }
+    */
   }
 
 }

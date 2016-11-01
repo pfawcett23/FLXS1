@@ -8,7 +8,6 @@
 #include "Sequencer.h"
 
 #define NUM_LEDS 20
-#define DATA_PIN 0
 
 class LEDArray
 {
